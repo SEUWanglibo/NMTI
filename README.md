@@ -51,7 +51,8 @@ NMTI (Niu Ma Type Indicator) 是一个娱乐性质的职场人格测试：
 
 ## 在线体验
 
-访问 https://SEUWanglibo.github.io/NMTI 开始测试
+- **Cloudflare Pages**: https://nmti-64m.pages.dev
+- **GitHub Pages**: https://SEUWanglibo.github.io/NMTI
 
 ## 技术实现
 
