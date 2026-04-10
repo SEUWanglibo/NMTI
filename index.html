@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NMTI 牛马人格测试</title>
+  <style>
+    :root {
+      --bg: #f6f7fa;
+      --panel: #ffffff;
+      --text: #1a1f2e;
+      --muted: #5a6070;
+      --line: #d1d5e0;
+      --soft: #eef0f5;
+      --accent: #5b6b8c;
+      --accent-strong: #3d4a66;
+      --shadow: 0 16px 40px rgba(45, 55, 80, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, #f9fafc 0, #f6f7fa 36%, #f1f3f7 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-top: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px;
+      top: -60px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(91, 107, 140, 0.18), rgba(91, 107, 140, 0.02));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 999px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 680px;
+    }
+    .hero .sub {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+      max-width: 720px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 24px;
+    }
+
+    .mini-panel {
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fbfcfe, #f3f5f8);
+    }
+
+    .mini-panel h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .mini-panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .hero-minimal {
+      min-height: 48vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 42px 20px;
+    }
+    .hero-minimal::after { display: none; }
+    .hero-minimal h1 {
+      max-width: none;
+      margin: 0;
+    }
+    .hero-actions-single {
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      font: inherit;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+    .btn-primary {
+      background: var(--accent-strong);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(61, 74, 102, 0.18);
+      font-weight: 700;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent-strong);
+      padding: 14px 20px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      font-weight: 700;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .test-wrap,
+    .result-wrap {
+      margin-top: 22px;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      flex: 1;
+      min-width: 240px;
+      height: 10px;
+      background: #eef0f5;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, #7a8bad, #4d5a75);
+      border-radius: inherit;
+      transition: width .22s ease;
+    }
+
+    .progress-text {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .question {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .question-title {
+      font-size: 16px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+
+    .option:hover {
+      border-color: #c5cbd6;
+      background: #f9fafc;
+    }
+
+    .option input {
+      margin-top: 3px;
+      accent-color: var(--accent-strong);
+      transform: scale(1.1);
+      flex-shrink: 0;
+    }
+
+    .option-code {
+      font-weight: 800;
+      color: var(--accent-strong);
+      min-width: 22px;
+    }
+
+    .actions-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding-top: 6px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .result-hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .type-box,
+    .score-box,
+    .dim-box,
+    .top3-box,
+    .about-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+    }
+
+    .type-kicker {
+      font-size: 12px;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
+      letter-spacing: .05em;
+    }
+
+    .type-name {
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .type-subname {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .match {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--accent-strong);
+      font-weight: 700;
+    }
+
+    .type-desc {
+      margin-top: 18px;
+      line-height: 1.85;
+      font-size: 15px;
+      color: #2a3040;
+    }
+
+    .score-box h3,
+    .dim-box h3,
+    .top3-box h3,
+    .about-box h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .score-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .score-item .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .score-item .v {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+
+    .dim-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dim-pill {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .dim-pill .label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .dim-pill .value {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent-strong);
+    }
+
+    .top3-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .top3-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .top3-item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .top3-item span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .top3-score {
+      color: var(--accent-strong);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .about-box p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .result-layout {
+      display: grid;
+      gap: 18px;
+    }
+    .result-top {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .poster-box, .type-box, .analysis-box, .dim-box, .note-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+    }
+    .poster-box {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 280px;
+      overflow: hidden;
+      position: relative;
+      background:
+        radial-gradient(circle at top right, rgba(91,107,140,0.16), rgba(91,107,140,0) 40%),
+        linear-gradient(180deg, #ffffff, #f7f9fc);
+    }
+    .poster-box::after {
+      content: "";
+      position: absolute;
+      right: -46px;
+      bottom: -46px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(91,107,140,0.12), rgba(91,107,140,0.01));
+      pointer-events: none;
+    }
+    .poster-image {
+      width: 100%;
+      min-height: 220px;
+      max-height: 460px;
+      object-fit: contain;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.75);
+      position: relative;
+      z-index: 1;
+    }
+    .poster-box.no-image .poster-image {
+      display: none;
+    }
+    .poster-caption {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+      position: relative;
+      z-index: 1;
+    }
+    .type-kicker {
+      font-size: 12px;
+      color: var(--accent-strong);
+      margin-bottom: 8px;
+      letter-spacing: .06em;
+    }
+    .type-name {
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+    .type-subname {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .match {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      color: var(--accent-strong);
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .analysis-box h3, .dim-box h3, .note-box h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    .result-actions {
+      margin-top: 22px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .analysis-box p {
+      margin: 0;
+      color: #2a3040;
+      font-size: 15px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+    .dim-list {
+      display: grid;
+      gap: 12px;
+    }
+    .dim-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+    .dim-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .dim-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .dim-item-score {
+      color: var(--accent-strong);
+      font-weight: 800;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .dim-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    .note-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .author-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #fbfcfe);
+      overflow: hidden;
+    }
+    .author-box summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .author-box summary::-webkit-details-marker { display: none; }
+    .author-box summary::after {
+      content: '展开';
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+      background: var(--soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .author-box[open] summary::after {
+      content: '收起';
+    }
+    .author-content {
+      border-top: 1px solid var(--line);
+      padding: 0 18px 18px;
+    }
+    .author-content p {
+      margin: 14px 0 0;
+      color: #2a3040;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .result-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 22px;
+    }
+    .ad-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      background: linear-gradient(180deg, #f8f9fc, #f0f3f8);
+      margin-top: 8px;
+    }
+    .ad-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-strong);
+      margin: 0 0 12px 0;
+    }
+    .ad-text {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.8;
+      margin: 8px 0;
+    }
+    .ad-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--line);
+    }
+    .ad-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+    .ad-btn:hover {
+      transform: translateY(-1px);
+    }
+    .ad-btn-primary {
+      background: var(--accent-strong);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(61, 74, 102, 0.15);
+    }
+    .ad-or {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .ad-wechat {
+      color: var(--text);
+      font-size: 14px;
+    }
+    .ad-wechat strong {
+      color: var(--accent-strong);
+    }
+    .credit-box {
+      margin-top: 16px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+    .credit-box p {
+      margin: 6px 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .credit-box a {
+      color: var(--accent-strong);
+      text-decoration: none;
+    }
+    .credit-box a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 860px) {
+      .result-top { grid-template-columns: 1fr; }
+    }
+
+@media (max-width: 860px) {
+      .hero-grid,
+      .result-hero {
+        grid-template-columns: 1fr;
+      }
+      .dim-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 600px) {
+      .shell { padding: 14px 12px 42px; }
+      .hero, .test-wrap, .result-wrap { padding: 16px; }
+      .hero h1 { font-size: 32px; }
+      .question-title { font-size: 15px; }
+      .dim-grid,
+      .score-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section id="intro" class="screen active">
+      <div class="hero card hero-minimal">
+        <div class="eyebrow">Niu Ma Type Indicator</div>
+        <h1>NMTI 牛马人格测试</h1>
+        <div class="hero-actions hero-actions-single">
+          <button id="startBtn" class="btn-primary">开始测试</button>
+        </div>
+        <div style="padding-top: 2rem; display: flex; flex-direction: column; gap: 8px; color: var(--muted); font-size: 13px;">
+          <span>MBTI已经过时，NMTI来了</span>
+          <span>31道题，测出你的职场人格</span>
+          <span>你不是一个人，你只是还没找到组织</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="test" class="screen">
+      <div class="test-wrap card">
+        <div class="topbar">
+          <div class="progress"><span id="progressBar"></span></div>
+          <div class="progress-text" id="progressText">0 / 31</div>
+        </div>
+
+        <div id="questionList" class="question-list"></div>
+
+        <div class="actions-bottom">
+          <div class="hint" id="testHint">全选完才会放行。班可以不上，测试必须做完。</div>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="backIntroBtn" class="btn-secondary">返回首页</button>
+            <button id="submitBtn" class="btn-primary" disabled>提交并查看结果</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="result" class="screen">
+      <div class="result-wrap card">
+        <div class="result-layout">
+          <div class="result-top">
+            <div class="poster-box" id="posterBox">
+              <img id="posterImage" class="poster-image" alt="人格结果图" />
+              <div id="posterCaption" class="poster-caption"></div>
+            </div>
+
+            <div class="type-box">
+              <div class="type-kicker" id="resultModeKicker">你的主类型</div>
+              <div class="type-name" id="resultTypeName"></div>
+              <div class="match" id="matchBadge">匹配度 92%</div>
+              <div class="type-subname" id="resultTypeSub">系统备注会显示在这里。</div>
+            </div>
+          </div>
+
+          <div class="analysis-box">
+            <h3>该人格的简单解读</h3>
+            <p id="resultDesc"></p>
+          </div>
+
+          <div class="dim-box">
+            <h3>十五维度评分</h3>
+            <div id="dimList" class="dim-list"></div>
+          </div>
+
+          <div class="note-box">
+            <h3>友情提示</h3>
+            <p id="funNote">本测试仅供娱乐，别拿它当跳槽、谈薪、升职或离职的依据。</p>
+          </div>
+
+          <details class="author-box">
+            <summary>作者的话</summary>
+            <div class="author-content">
+              <p>本测试基于 acceptTI 科研人格测试改编，专为牛马设计。</p>
+              <p>职场路上，你不是一个人。无论你是实习炮灰、数据奴隶，还是微观管理狂，都有一群人和你一样，在背锅和升职之间反复横跳。</p>
+              <p>请记住：这只是一个娱乐测试，你的人生价值不由职级定义。</p>
+              <p>如果你测出来是 NIGHT（深夜保安），请立刻去睡觉。</p>
+            </div>
+          </details>
+
+          <div class="ad-box">
+            <div class="ad-content">
+              <p class="ad-title">关于 NMTI</p>
+              <p class="ad-text">这个测试完全免费，供大家娱乐。如果你觉得好玩，欢迎分享给同事：</p>
+              <div class="ad-actions">
+                <span class="ad-wechat">转发给那个最像"职场草履虫"的同事</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="credit-box">
+            <p>灵感来源：<a href="https://github.com/SEUWanglibo/acceptTI" target="_blank">acceptTI 科研人格测试</a></p>
+            <p>改编：NMTI 牛马人格测试</p>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button id="restartBtn" class="btn-secondary">重新测试</button>
+            <button id="toTopBtn" class="btn-primary">回到首页</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ===== NMTI 牛马人格测试 - 数据定义 =====
+
+    const dimensionMeta = {
+      S1: { name: 'S1 职场自信', model: '职场自我认知' },
+      S2: { name: 'S2 职业方向清晰度', model: '职场自我认知' },
+      S3: { name: 'S3 升职加薪焦虑', model: '职场自我认知' },
+      E1: { name: 'E1 背锅韧性', model: '职场情绪调节' },
+      E2: { name: 'E2 同辈攀比焦虑', model: '职场情绪调节' },
+      E3: { name: 'E3 Deadline压力', model: '职场情绪调节' },
+      A1: { name: 'A1 摸鱼vs卷王', model: '工作价值取向' },
+      A2: { name: 'A2 规则灵活度', model: '工作价值取向' },
+      A3: { name: 'A3 工作意义感', model: '工作价值取向' },
+      Ac1: { name: 'Ac1 动机导向', model: '职场执行风格' },
+      Ac2: { name: 'Ac2 决策风格', model: '职场执行风格' },
+      Ac3: { name: 'Ac3 执行模式', model: '职场执行风格' },
+      So1: { name: 'So1 职场社交', model: '职场人际关系' },
+      So2: { name: 'So2 合作边界', model: '职场人际关系' },
+      So3: { name: 'So3 向上管理', model: '职场人际关系' }
+    };
+
+    const questions = [
+      { id: 'q1', dim: 'S1', text: '看到同事的晋升通知，你会？', options: [{ label: '我是废物', value: 1 }, { label: '有点羡慕但还好', value: 2 }, { label: '他行我也行', value: 3 }] },
+      { id: 'q2', dim: 'S1', text: '老板夸你的工作，你会？', options: [{ label: '一定是在画饼/他搞错了', value: 1 }, { label: '谦虚一下', value: 2 }, { label: '没错，我就是天才', value: 3 }] },
+      { id: 'q3', dim: 'S2', text: '你对未来五年的规划是？', options: [{ label: '活过今天就行', value: 1 }, { label: '有个大概方向', value: 2 }, { label: '精确到每个季度的里程碑', value: 3 }] },
+      { id: 'q4', dim: 'S2', text: '如果明天公司倒闭，你会？', options: [{ label: '太好了终于可以休息了', value: 1 }, { label: '有点慌但还能调整', value: 2 }, { label: '立刻找下家，不能断', value: 3 }] },
+      { id: 'q5', dim: 'S3', text: '你已经多久没涨薪了？', options: [{ label: '涨薪是什么？', value: 1 }, { label: '一年吧，还好', value: 2 }, { label: '超过半年没涨薪我就要疯了', value: 3 }] },
+      { id: 'q6', dim: 'S3', text: '周末你在想什么？', options: [{ label: '玩什么游戏', value: 1 }, { label: '工作和休息之间摇摆', value: 2 }, { label: '那个PPT还能再优化一下', value: 3 }] },
+      { id: 'q7', dim: 'E1', text: '被甩锅了，你会？', options: [{ label: '当场emo一周', value: 1 }, { label: '难过但明天反击', value: 2 }, { label: '甩锅的人懂个屁，直接怼回去', value: 3 }] },
+      { id: 'q8', dim: 'E1', text: '被甩锅三次后，你会？', options: [{ label: '怀疑人生，考虑转行', value: 1 }, { label: '再忍忍试试', value: 2 }, { label: '一定是公司文化不对', value: 3 }] },
+      { id: 'q9', dim: 'E2', text: '室友跳槽涨薪50%，你在朋友圈看到，你会？', options: [{ label: '点个赞，恭喜', value: 1 }, { label: '默默焦虑', value: 2 }, { label: '立刻打开BOSS直聘开始刷', value: 3 }] },
+      { id: 'q10', dim: 'E2', text: '部门会上听说同事要升职了，你会？', options: [{ label: '关我屁事', value: 1 }, { label: '有点压力', value: 2 }, { label: '整晚睡不着觉', value: 3 }] },
+      { id: 'q11', dim: 'E3', text: 'DDL前一周，你的状态是？', options: [{ label: '已经开始失眠', value: 1 }, { label: '有点紧张但还行', value: 2 }, { label: '早就做完了', value: 3 }] },
+      { id: 'q12', dim: 'E3', text: '如果DDL延后一周，你会？', options: [{ label: '太好了再躺一周', value: 1 }, { label: '稍微优化一下', value: 2 }, { label: '不解，为什么要延后？', value: 3 }] },
+      { id: 'q13', dim: 'A1', text: '发现一个可能有问题的数据，但不太明显，你会？', options: [{ label: '先汇报了再说', value: 1 }, { label: '检查一下，不太影响就报', value: 2 }, { label: '必须重新核对完所有数据', value: 3 }] },
+      { id: 'q14', dim: 'A1', text: '老板说你的方案有缺陷，但你觉得可行，你会？', options: [{ label: '改改措辞糊弄过去', value: 1 }, { label: '补一些分析但不过分', value: 2 }, { label: '完全重做，必须完美', value: 3 }] },
+      { id: 'q15', dim: 'A2', text: '老板要求按A方案做，但你觉得B方案更好，你会？', options: [{ label: '偷偷按B做', value: 1 }, { label: '先跟老板讨论', value: 2 }, { label: '按A做，老板说的都对', value: 3 }] },
+      { id: 'q16', dim: 'A2', text: '公司流程要求严格，你会？', options: [{ label: '差不多就行', value: 1 }, { label: '大体遵守，偶尔变通', value: 2 }, { label: '严格按照流程，偏差0.1都不行', value: 3 }] },
+      { id: 'q17', dim: 'A3', text: '你觉得工作的意义是？', options: [{ label: '混口饭吃', value: 1 }, { label: '有时候觉得有意义，有时候觉得虚无', value: 2 }, { label: '改变世界，创造价值！', value: 3 }] },
+      { id: 'q18', dim: 'A3', text: '如果明天中彩票500万，你还会上班吗？', options: [{ label: '立刻辞职', value: 1 }, { label: '可能还是会做一点', value: 2 }, { label: '工作是使命，跟钱无关', value: 3 }] },
+      { id: 'q19', dim: 'Ac1', text: '你工作主要追求？', options: [{ label: '不被裁就行', value: 1 }, { label: '稳定就行，不求高升', value: 2 }, { label: '必须当高管，其他都是垃圾', value: 3 }] },
+      { id: 'q20', dim: 'Ac1', text: '面对失败，你会？', options: [{ label: '避免再失败，保守策略', value: 1 }, { label: '平衡风险和收益', value: 2 }, { label: '失败是成功之母，继续冲', value: 3 }] },
+      { id: 'q21', dim: 'Ac2', text: '选择项目时，你会？', options: [{ label: '想了半年还没决定', value: 1 }, { label: '调研一两周后决定', value: 2 }, { label: '看一眼就知道行不行', value: 3 }] },
+      { id: 'q22', dim: 'Ac2', text: '老板让你选一个项目，你会？', options: [{ label: '都要，我全都要', value: 1 }, { label: '选一个，但会犹豫', value: 2 }, { label: '快速分析后选最优', value: 3 }] },
+      { id: 'q23', dim: 'Ac3', text: '你的日常工作效率？', options: [{ label: 'DDL前48小时爆发', value: 1 }, { label: '有时高效有时摸鱼', value: 2 }, { label: '每天稳定输出', value: 3 }] },
+      { id: 'q24', dim: 'Ac3', text: '你每天的实际工作时间？', options: [{ label: '有效2小时', value: 1 }, { label: '6-8小时', value: 2 }, { label: '12小时以上', value: 3 }] },
+      { id: 'q25', dim: 'So1', text: '公司团建，你会？', options: [{ label: '躲在角落看手机', value: 1 }, { label: '有人来聊就聊', value: 2 }, { label: '主动搭讪大老板', value: 3 }] },
+      { id: 'q26', dim: 'So1', text: '收到行业峰会邀请函，你会？', options: [{ label: '找理由不去', value: 1 }, { label: '看情况，不太想去', value: 2 }, { label: '立刻准备名片和电梯演讲', value: 3 }] },
+      { id: 'q27', dim: 'So2', text: '合作项目，关于功劳分配，你会？', options: [{ label: '随便分，大家都是朋友', value: 1 }, { label: '按贡献来，但可以商量', value: 2 }, { label: '必须算清楚，别想占我便宜', value: 3 }] },
+      { id: 'q28', dim: 'So2', text: '有人想蹭你功劳（但没做什么），你会？', options: [{ label: '好啊，多个朋友多条路', value: 1 }, { label: '看关系，偶尔可以', value: 2 }, { label: '不可能，我的功劳不能乱给', value: 3 }] },
+      { id: 'q29', dim: 'So3', text: '老板说你的方案有问题，但你觉得没问题，你会？', options: [{ label: '好的老板，我改', value: 1 }, { label: '尝试解释，但最终还是听老板的', value: 2 }, { label: '拿出数据证明我是对的', value: 3 }] },
+      { id: 'q30', dim: 'So3', text: '会议上发现老板理解错了数据，你会？', options: [{ label: '沉默，老板说的都对', value: 1 }, { label: '私下委婉提醒', value: 2 }, { label: '当场指出', value: 3 }] }
+    ];
+
+    const specialQuestions = [
+      { id: 'overtime_gate_q1', special: true, kind: 'overtime_gate', text: '你平时加班吗？', options: [{ label: '从不，作息规律', value: 1 }, { label: '偶尔加班', value: 2 }, { label: '经常加班', value: 3 }] },
+      { id: 'overtime_gate_q2', special: true, kind: 'overtime_trigger', text: '你一般加到几点？', options: [{ label: '晚上8-9点', value: 1 }, { label: '晚上11-12点', value: 2 }, { label: '通宵，直接等日出', value: 3 }] }
+    ];
+
+    const TYPE_LIBRARY = {
+      "TRYOUT": { "code": "TRYOUT", "cn": "试用期耗材", "intro": "三个月转正，六个月毕业", "desc": "你是公司的人力资源试用装。HR招你进来是为了"看看效果"，就像超市里的免费试吃。你每天战战兢兢地证明自己"有价值"，却不知道价值的标准每天都在变。你的工位是临时租的，你的邮箱权限是限时的，你的存在本身就是一个待办事项："评估新人表现（截止日期：90天后）"。" },
+      "FRESH": { "code": "FRESH", "cn": "应届韭菜", "intro": "刚被割，还在长", "desc": "你带着985的骄傲和一腔热血杀进职场，三个月后发现自己的价值就是打印文件和订外卖。你的上级看着你像看一只实验用的小白鼠——"看看这届年轻人能扛多久"。你每天都在学习"职场第一课"，而这些课的教学大纲只有一个字：忍。" },
+      "STALE": { "code": "STALE", "cn": "五年陈酿", "intro": "2019年的经验，用到2024年", "desc": "你是一份过期的罐头食品。打开盖子，味道还是那个味道，只是营养成分已经流失殆尽。你的简历上写着"五年经验"，实际上是把第一年的经验重复了五次。你已经学会了如何在会议上假装思考、如何在deadline前表演加班、如何在绩效考核时挤出眼泪。你升不上去，也下不来，就像卡在喉咙里的一口痰。" },
+      "SANDWICH": { "code": "SANDWICH", "cn": "夹心饼干", "intro": "上面压，下面顶，中间碎", "desc": "你是职场食物链中最尴尬的物种。上面有老板的压力，下面有下属的叛逆，中间有你快要崩溃的灵魂。你的日常就是传声筒加替罪羊：老板骂你，你骂下属，下属骂你，你再被老板骂。你的发际线是你的KPI曲线最诚实的映射，而你的年终奖永远配不上你掉的头发。" },
+      "TARGET": { "code": "TARGET", "cn": "高级背锅侠", "intro": "工资高，锅更重，靶心更大", "desc": "恭喜，你升到了这个位置！坏消息是：你现在是一个移动的靶子。所有向上无法传递的压力都会砸向你，所有向下无法消化的怨气都会喷向你。你的title很好看，你的实权很有限，你的背锅额度却是无限的。每次公司出事，你的名字第一个被想起——"为什么X总没管好？"" },
+      "NOMAD": { "code": "NOMAD", "cn": "灵活就业难民", "intro": "没社保，没年假，没明天", "desc": "你是数字游民的反面教材。你没有海边的咖啡馆，只有城中村的隔断间；你没有自由的时间，只有24小时待命的客户微信。你的收入像心电图一样起伏不定，你的社保像薛定谔的猫一样时有时无。你告诉别人你在"追求自由"，实际上你只是在逃避稳定，而稳定现在看起来像个奢侈品。" },
+      "PLANT": { "code": "PLANT", "cn": "工位盆栽", "intro": "光合作用维生，存在感为零", "desc": "你是一个会呼吸的办公室装饰品。你有固定的位置，定期的浇水（工资），但你没有任何实际的职能。同事们走过你的工位时会惊讶："原来你还在这？"你不知道自己在做什么，别人也不知道，甚至HR都可能忘了你的存在。你最大的成就是连续三个月没有收到任何邮件，却依然正常发薪。" },
+      "EXCEL": { "code": "EXCEL", "cn": "表格雕花大师", "intro": "把屎包装成巧克力，再雕个花", "desc": "你的核心竞争力是把毫无意义的数据变得看起来很有意义。你精通条件格式、数据透视、VLOOKUP，你用这些工具在电子表格里建造巴别塔。你花三天时间做一个dashboard，只是为了证明一件所有人都知道的事：业绩不行。但你不在乎，因为形式大于内容是你的信仰，而你的老板恰好是色盲。" },
+      "DONKEY": { "code": "DONKEY", "cn": "996永动驴", "intro": "拉磨不求回报，停下就会思考", "desc": "你是一台人形发电机，用血肉之躯为公司的估值提供动力。你对996已经产生了斯德哥尔摩综合征——不加班反而不舒服。你给自己的加班找了无数理由："学习成长"、"积累经验"、"趁年轻拼一把"，但你知道真正的原因是：你不敢停下来，因为停下来就要面对那个可怕的问题——这一切有什么意义？" },
+      "PIVOT": { "code": "PIVOT", "cn": "透视表农奴", "intro": "被Excel奴役，为ROI献祭", "desc": "你的一天从打开Excel开始，到关闭Excel结束。你梦见自己在单元格里跳舞，被鼠标拖来拖去。你对数据的敏感度超过了对人的敏感度，你能从一张表里看出公司的命运，却看不出同事的情绪。你的心理健康状况与那个红色的#VALUE!成正比，而你的存在价值就是那个永远对不齐的ROI。" },
+      "PPT": { "code": "PPT", "cn": "PPT缅北诈骗犯", "intro": "只负责画饼，不管兑现", "desc": "你是职场电信诈骗的顶级操盘手。你的每一页slide都是一个精心设计的骗局：用好看的配色掩盖空洞的内容，用复杂的图表掩盖贫瘠的数据，用"战略""生态""闭环"这样的词掩盖你根本不知道在说什么。你的观众知道你在骗，你知道自己在骗，但大家都假装相信，因为这就是职场的规矩。" },
+      "BRAIN": { "code": "BRAIN", "cn": "脑内亿万富翁", "intro": "富可敌国的想象力，一毛钱的执行力", "desc": "你的脑子里有一个帝国。你每天都在产生"改变行业"的想法，这些想法如果都实现，你的估值已经超过马斯克。问题是，你从不实现它们。三年后，当你看到别人的产品和你当年的想法一模一样时，你会愤愤不平："我早就想到了！"——是的，你想到了，但你就是不做，因为想到比做到轻松多了。" },
+      "CV": { "code": "CV", "cn": "简历缝补匠", "intro": "东拼西凑，以次充好", "desc": "你的真实技能和简历上的描述之间隔着一个银河系。你把"用过一次"写成"熟练掌握"，把"听说过"写成"深度了解"，把"项目参与过"写成"项目主导者"。你是职场的fast fashion，外表光鲜，一洗就烂。但你不在乎，因为你的目标是在被拆穿之前跳到下一个坑。" },
+      "SQUIRREL": { "code": "SQUIRREL", "cn": "知识松鼠症", "intro": "囤积一切，消化为零", "desc": "你的收藏夹是一个巨大的知识坟墓。得到课程、知乎live、B站教程、PDF书籍——你什么都存，什么都不看。你享受"获得知识"的快感，却逃避"使用知识"的责任。每次汇报前你狂补内容，然后自信满满地胡说八道，直到有人问你具体问题，你才发现自己只记得标题。" },
+      "PLUGIN": { "code": "PLUGIN", "cn": "生产力ED患者", "intro": "工具买一堆，产出为0", "desc": "你对"效率工具"有一种病态的迷恋。Notion、Obsidian、飞书、钉钉、各种插件、各种自动化——你花了80%的时间配置它们，剩下20%的时间抱怨它们不够好。你相信只要找到"完美的工作流"，你就能成为超人，但你永远找不到，因为寻找本身就是一种逃避。" },
+      "ACTOR": { "code": "ACTOR", "cn": "会议室影帝", "intro": "废话文学大师，黑话翻译机", "desc": "你的职场核心竞争力是"看起来专业"。你深谙会议表演的精髓：用"抓手""赋能""颗粒度"这样的词构建护城河，用"我有个问题"来展示存在感，用"我总结一下"来抢夺话语权。你能在一个小时的会议里讲20分钟而不传递任何信息，而这恰恰是老板最喜欢的——因为老板也不知道该怎么办。" },
+      "CUSHION": { "code": "CUSHION", "cn": "老板的情绪稳定器", "intro": "人形沙包，随打随恢复", "desc": "你是老板的心理健康维护设备。当老板被他的老板骂了，你负责接住他的怒气；当老板家里吵架了，你负责接收他的负能量；当老板需要人背锅了，你负责说"是我的问题"。你的职场技能只有两个字：受着。你安慰自己这是"情商高"，实际上你只是不敢反抗。" },
+      "LONE": { "code": "LONE", "cn": "协作过敏体质", "intro": "不会teamwork，只会solo送", "desc": "你相信所有团队项目都会变成灾难，所以干脆不加入任何团队。你的效率确实高，但你错过了90%的信息、100%的机会和200%的人情。你在深夜独自加班时感到一种病态的优越感，却不知道隔壁团队的成果已经被老板在全员大会上表扬了三次。" },
+      "CIA": { "code": "CIA", "cn": "茶水间情报局", "intro": "情报贩子，八卦中间商", "desc": "你的主业是收集和传播信息，副业才是工作。你知道谁要离职、谁要被裁、谁在谈恋爱、谁在找下家。你的信息来源神秘莫测，准确度时高时低，但人们就是喜欢听你讲。你很少做业务，但你的名字总是出现在各种项目的cc列表里——因为大家都知道，得罪你等于得罪整个公司的八卦网络。" },
+      "SHIELD": { "code": "SHIELD", "cn": "责任推卸奥运冠军", "intro": "零失误，零担当，零存在感", "desc": "你的生存哲学是"不做不错"。任何可能有风险的项目你都不碰，任何可能有责任的决策你都不做，任何可能有后果的承诺你都不给。你的周报永远在看不出进度，你的OKR永远在"进行中"，你的贡献永远在"协调资源"。你以为自己很聪明，直到裁员名单下来，HR的理由是"看不出价值"。" },
+      "VAMPIRE": { "code": "VAMPIRE", "cn": "成果嫁接专家", "intro": "别人的树，你的果", "desc": "你对"署名权"有着敏锐的嗅觉。任何可能沾边的项目，你都会出现在author list上；任何可能沾光的汇报，你都会出现在参会名单里。你的策略是：先挂上名，再慢慢搞清楚这个项目是做什么的。你的简历看起来像个六边形战士，但一面试就露馅——因为你除了挂名，什么都没做。" },
+      "ZOMBIE": { "code": "ZOMBIE", "cn": "行尸走肉Plus", "intro": "脑死亡，心还在跳", "desc": "你已经对一切都失去了反应。早上的闹钟、老板的@、同事的求助、客户的投诉——这些都像打在棉花上，没有任何回响。你机械地完成工作，机械地参加会议，机械地微笑点头。你的灵魂早就已经辞职了，只有身体还在惯性打卡。你还在投简历，但不是为了改变，只是为了证明"我在努力"。" },
+      "LOTTERY": { "code": "LOTTERY", "cn": "年会抽奖妄想症", "intro": "相信幸运会降临，年年落空年年信", "desc": "你的生存动力是一系列小概率事件：年会抽中一等奖、股票意外暴涨、被大老板偶然赏识、项目突然爆火。你每年都在算"如果涨薪20%，如果升职，如果..."，而这些"如果"从未发生。但你不会停止，因为承认现实太痛苦，而幻想是免费的止痛药。" },
+      "LINKEDIN": { "code": "LINKEDIN", "cn": "脉脉自虐狂", "intro": "越刷越焦虑，越焦虑越刷", "desc": "你的精神鸦片是社交媒体上的职业 updates。每看到有人"宣布新的旅程"，你就陷入一轮自我怀疑。你不断刷新脉脉、LinkedIn、BOSS直聘，像吸毒一样寻找刺激。你的生活被"别人在做什么"完全支配，以至于你忘了问"我要做什么"。你的焦虑是你的燃料，而你的燃料正在烧干你。" },
+      "EMPTY": { "code": "EMPTY", "cn": "电池健康度1%", "intro": "充不进电，开不了机", "desc": "你曾经是满格电量，现在只剩1%且正在快充失效。你曾经热爱工作、主动加班、周末学习，现在你起床都需要心理建设。你对一切都失去了兴趣——工作、娱乐、社交、甚至美食。你的身体还在工位上，但系统已经蓝屏。你需要关机重启，但社会不允许你关机。" },
+      "AMOEBA": { "code": "AMOEBA", "cn": "职场草履虫", "intro": "单细胞生物，莫名存活", "desc": "你的存在本身就是个生物学奇迹。你没有复杂的神经系统，所以没有焦虑；你没有高级的认知功能，所以不会内耗；你只是本能地进食、排泄、繁殖（划掉）打卡。你不知道KPI是什么，不知道OKR为何物，但 somehow 你一直活着，而那些聪明人都 burnout 了。也许愚蠢真的是一种天赋。" },
+      "NIGHT": { "code": "NIGHT", "cn": "深夜保安", "intro": "公司是我家，我是看门狗", "desc": "你是公司夜间生态系统的原住民。保安认识你，保洁认识你，连蟑螂都认识你。你的工位上有牙刷、有拖鞋、有折叠床——你已经分不清这是公司还是家。你对凌晨三点的办公室比白天的更熟悉，你知道哪盏灯是坏的、哪把椅子是舒服的、哪台咖啡机是24小时的。你不是在加班，你是在过一种颠倒的生活，而这种生活正在吃掉你的健康、你的关系、你的未来。" }
+    };
+
+    const TYPE_IMAGES = {
+      "TRYOUT": "./image/TRYOUT.webp", "FRESH": "./image/FRESH.webp", "STALE": "./image/STALE.webp", "SANDWICH": "./image/SANDWICH.webp",
+      "TARGET": "./image/TARGET.webp", "NOMAD": "./image/NOMAD.webp", "PLANT": "./image/PLANT.webp",
+      "EXCEL": "./image/EXCEL.webp", "DONKEY": "./image/DONKEY.webp", "PIVOT": "./image/PIVOT.webp", "PPT": "./image/PPT.webp",
+      "BRAIN": "./image/BRAIN.webp", "CV": "./image/CV.webp", "SQUIRREL": "./image/SQUIRREL.webp", "PLUGIN": "./image/PLUGIN.webp", "ACTOR": "./image/ACTOR.webp",
+      "CUSHION": "./image/CUSHION.webp", "LONE": "./image/LONE.webp", "CIA": "./image/CIA.webp", "SHIELD": "./image/SHIELD.webp", "VAMPIRE": "./image/VAMPIRE.webp",
+      "ZOMBIE": "./image/ZOMBIE.webp", "LOTTERY": "./image/LOTTERY.webp", "LINKEDIN": "./image/LINKEDIN.webp", "EMPTY": "./image/EMPTY.webp",
+      "AMOEBA": "./image/AMOEBA.webp", "NIGHT": "./image/NIGHT.webp"
+    };
+
+    const NORMAL_TYPES = [
+      { "code": "TRYOUT", "pattern": "LLL-LML-MLL-LML-LML" }, { "code": "FRESH", "pattern": "LLL-LLL-LLL-LLL-LLL" },
+      { "code": "STALE", "pattern": "LML-LLM-LML-MLL-LML" }, { "code": "SANDWICH", "pattern": "MHH-HMH-HHM-MHH-HHM" },
+      { "code": "TARGET", "pattern": "MML-MHL-HML-MHM-MHL" }, { "code": "NOMAD", "pattern": "LML-LLL-MLL-LLL-LML" },
+      { "code": "PLANT", "pattern": "LMM-LML-MML-LMM-LLL" }, { "code": "EXCEL", "pattern": "HMH-MHH-MHH-HMH-MHH" },
+      { "code": "DONKEY", "pattern": "MHH-MHM-MHH-HHM-MHM" }, { "code": "PIVOT", "pattern": "MHL-MLH-MHL-MHL-MLM" },
+      { "code": "PPT", "pattern": "MHM-MHH-HHM-MHH-HHM" }, { "code": "BRAIN", "pattern": "MHL-MLH-LMH-MHL-MLH" },
+      { "code": "CV", "pattern": "LLM-MLM-LMM-MLM-MLL" }, { "code": "SQUIRREL", "pattern": "LML-LLM-MML-LLM-LML" },
+      { "code": "PLUGIN", "pattern": "MLH-MLM-MHL-MHL-MLM" }, { "code": "ACTOR", "pattern": "MLM-MHM-MML-MHM-MHM" },
+      { "code": "CUSHION", "pattern": "LMH-LMH-MHM-LMH-LHH" }, { "code": "LONE", "pattern": "HHL-LHL-HLH-LHL-LHL" },
+      { "code": "CIA", "pattern": "LHH-HHH-HLH-HHH-HHH" }, { "code": "SHIELD", "pattern": "HMH-HHM-HHM-HMH-MHM" },
+      { "code": "VAMPIRE", "pattern": "MLH-MHH-MHM-MHH-MHH" }, { "code": "ZOMBIE", "pattern": "LLL-LLL-LLL-LLL-LLL" },
+      { "code": "LOTTERY", "pattern": "MML-MML-MML-MML-MML" }, { "code": "LINKEDIN", "pattern": "LHL-LHL-MHL-LHL-LHL" },
+      { "code": "EMPTY", "pattern": "LML-LML-LLL-LML-LLM" }
+    ];
+
+    const DIM_EXPLANATIONS = {
+      "S1": { "L": "看同事的PPT觉得自己是废物，看自己的PPT觉得老板没品味", "M": "自信随着绩效评级波动，A+觉得自己是天才，C怀疑人生", "H": "对自己能力大致有数，低评级是老板没眼光，高评级是理所当然" },
+      "S2": { "L": "每天醒来都要问自己：我在干什么？我为什么要上班？", "M": "大概知道自己在做什么，但细节经常迷茫", "H": "五年职业规划精确到季度，每一步都算得明明白白" },
+      "S3": { "L": "加薪是什么？能吃吗？裁员还早，先躺为敬", "M": "偶尔会焦虑没晋升，但还能自我调节", "H": "没涨薪就睡不着觉，年终奖就是生命线" },
+      "E1": { "L": "收到甩锅邮件当场emo一周，需要HR做心理咨询", "M": "难过但能快速恢复，下次注意就是", "H": "背锅是常态，甩回去就是，内心毫无波动" },
+      "E2": { "L": "前同事年薪百万关我什么事，我继续我的", "M": "看到同学升职会有点慌", "H": "刷到LinkedIn有人跳槽涨薪就焦虑到想裸辞" },
+      "E3": { "L": "DDL前一周开始焦虑，DDL当天通宵", "M": "DDL前三天进入工作状态", "H": "DDL是什么？我从来都是提前交" },
+      "A1": { "L": "能摸就摸，KPI是老板的事", "M": "尽量做好，但也不会太拼", "H": "宁可加班，也不能交有瑕疵的工作" },
+      "A2": { "L": "老板说要这样，但我偏要那样", "M": "该守的守，该变通的变通", "H": "严格按照流程，偏差0.1都不行" },
+      "A3": { "L": "打工就是赚钱，别跟我谈理想", "M": "有时候觉得有意义，有时候觉得虚无", "H": "为了改变世界！为了创造价值！" },
+      "Ac1": { "L": "避免被裁：只要不被优化就算成功", "M": "平衡型：既要绩效好也要不被裁", "H": "追求成功：必须当高管，其他都是垃圾" },
+      "Ac2": { "L": "这个项目接不接？想了半年还没决定", "M": "想一周左右，收集信息后果断决定", "H": "看一眼就知道行不行，立刻动手" },
+      "Ac3": { "L": "拖延症晚期，DDL是第一生产力", "M": "有时候高效，有时候摸鱼", "H": "每天工作12小时，效率机器" },
+      "So1": { "L": "团建躲在角落，假装看手机", "M": "有人来聊就聊，没人来就算了", "H": "主动搭讪大老板，名片换到手软" },
+      "So2": { "L": "功劳随便分，大家都是朋友", "M": "合作可以，但贡献要明确", "H": "每句话都算得很清楚，别想占我便宜" },
+      "So3": { "L": "老板说什么都对，我只会说'好的好的'", "M": "大部分时候顺从，偶尔表达想法", "H": "老板你这个方案有问题，我数据不支持" }
+    };
+
+    const dimensionOrder = ['S1','S2','S3','E1','E2','E3','A1','A2','A3','Ac1','Ac2','Ac3','So1','So2','So3'];
+    const OVERTIME_TRIGGER_QUESTION_ID = 'overtime_gate_q2';
+
+    const app = { shuffledQuestions: [], answers: {}, previewMode: false };
+    const screens = { intro: document.getElementById('intro'), test: document.getElementById('test'), result: document.getElementById('result') };
+    const questionList = document.getElementById('questionList');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const submitBtn = document.getElementById('submitBtn');
+    const testHint = document.getElementById('testHint');
+
+    function showScreen(name) { Object.entries(screens).forEach(([key, el]) => { el.classList.toggle('active', key === name); }); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function shuffle(array) { const arr = [...array]; for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+    function getVisibleQuestions() { const visible = [...app.shuffledQuestions]; const gateIndex = visible.findIndex(q => q.id === 'overtime_gate_q1'); if (gateIndex !== -1 && app.answers['overtime_gate_q1'] === 3) { visible.splice(gateIndex + 1, 0, specialQuestions[1]); } return visible; }
+    function getQuestionMetaLabel(q) { if (q.special) return '补充题'; return app.previewMode ? dimensionMeta[q.dim].name : '维度已隐藏'; }
+
+    function renderQuestions() {
+      const visibleQuestions = getVisibleQuestions();
+      questionList.innerHTML = '';
+      visibleQuestions.forEach((q, index) => {
+        const card = document.createElement('article'); card.className = 'question';
+        card.innerHTML = `<div class="question-meta"><div class="badge">第 ${index + 1} 题</div><div>${getQuestionMetaLabel(q)}</div></div><div class="question-title">${q.text}</div><div class="options">${q.options.map((opt, i) => { const code = ['A', 'B', 'C', 'D'][i] || String(i + 1); const checked = app.answers[q.id] === opt.value ? 'checked' : ''; return `<label class="option"><input type="radio" name="${q.id}" value="${opt.value}" ${checked} /><div class="option-code">${code}</div><div>${opt.label}</div></label>`; }).join('')}</div>`;
+        questionList.appendChild(card);
+      });
+      questionList.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const { name, value } = e.target; app.answers[name] = Number(value);
+          if (name === 'overtime_gate_q1') { if (Number(value) !== 3) { delete app.answers['overtime_gate_q2']; } renderQuestions(); return; }
+          updateProgress();
+        });
+      });
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const visibleQuestions = getVisibleQuestions(); const total = visibleQuestions.length; const done = visibleQuestions.filter(q => app.answers[q.id] !== undefined).length;
+      const percent = total ? (done / total) * 100 : 0; progressBar.style.width = `${percent}%`; progressText.textContent = `${done} / ${total}`;
+      const complete = done === total && total > 0; submitBtn.disabled = !complete;
+      testHint.textContent = complete ? '都做完了。现在可以把你的职场魂魄交给结果页审判。' : '全选完才会放行。班可以不上，测试必须做完。';
+    }
+
+    function sumToLevel(score) { if (score <= 3) return 'L'; if (score === 4) return 'M'; return 'H'; }
+    function levelNum(level) { return { L: 1, M: 2, H: 3 }[level]; }
+    function parsePattern(pattern) { return pattern.replace(/-/g, '').split(''); }
+    function getOvertimeTriggered() { return app.answers[OVERTIME_TRIGGER_QUESTION_ID] === 3; }
+
+    function computeResult() {
+      const rawScores = {}; const levels = {}; Object.keys(dimensionMeta).forEach(dim => { rawScores[dim] = 0; });
+      questions.forEach(q => { rawScores[q.dim] += Number(app.answers[q.id] || 0); });
+      Object.entries(rawScores).forEach(([dim, score]) => { levels[dim] = sumToLevel(score); });
+      const userVector = dimensionOrder.map(dim => levelNum(levels[dim]));
+      const ranked = NORMAL_TYPES.map(type => {
+        const vector = parsePattern(type.pattern).map(levelNum); let distance = 0; let exact = 0;
+        for (let i = 0; i < vector.length; i++) { const diff = Math.abs(userVector[i] - vector[i]); distance += diff; if (diff === 0) exact += 1; }
+        const similarity = Math.max(0, Math.round((1 - distance / 30) * 100));
+        return { ...type, ...TYPE_LIBRARY[type.code], distance, exact, similarity };
+      }).sort((a, b) => { if (a.distance !== b.distance) return a.distance - b.distance; if (b.exact !== a.exact) return b.exact - a.exact; return b.similarity - a.similarity; });
+      const bestNormal = ranked[0]; const nightTriggered = getOvertimeTriggered();
+      let finalType, modeKicker, badge, sub, special = false, secondaryType = null;
+      if (nightTriggered) {
+        finalType = TYPE_LIBRARY.NIGHT; secondaryType = bestNormal; modeKicker = '隐藏人格已激活'; badge = '匹配度 100% · 咖啡因异常因子已接管'; sub = '睡眠严重不足，系统已直接跳过常规人格审判。'; special = true;
+      } else if (bestNormal.similarity < 60) {
+        finalType = TYPE_LIBRARY.AMOEBA; modeKicker = '系统强制兜底'; badge = `标准人格库最高匹配仅 ${bestNormal.similarity}%`; sub = '标准人格库对你的脑回路集体罢工了，于是系统把你强制分配给了 AMOEBA。'; special = true;
+      } else { finalType = bestNormal; modeKicker = '你的主类型'; badge = `匹配度 ${bestNormal.similarity}% · 精准命中 ${bestNormal.exact}/15 维`; sub = '维度命中度较高，当前结果可视为你的第一人格画像。'; }
+      return { rawScores, levels, ranked, bestNormal, finalType, modeKicker, badge, sub, special, secondaryType };
+    }
+
+    function renderDimList(result) {
+      const dimList = document.getElementById('dimList');
+      dimList.innerHTML = dimensionOrder.map(dim => {
+        const level = result.levels[dim]; const explanation = DIM_EXPLANATIONS[dim][level];
+        return `<div class="dim-item"><div class="dim-item-top"><div class="dim-item-name">${dimensionMeta[dim].name}</div><div class="dim-item-score">${level} / ${result.rawScores[dim]}分</div></div><p>${explanation}</p></div>`;
+      }).join('');
+    }
+
+    function renderResult() {
+      const result = computeResult(); const type = result.finalType;
+      document.getElementById('resultModeKicker').textContent = result.modeKicker;
+      document.getElementById('resultTypeName').textContent = `${type.code}（${type.cn}）`;
+      document.getElementById('matchBadge').textContent = result.badge;
+      document.getElementById('resultTypeSub').textContent = result.sub;
+      document.getElementById('resultDesc').textContent = type.desc;
+      document.getElementById('posterCaption').textContent = type.intro;
+      document.getElementById('funNote').textContent = result.special ? '本测试仅供娱乐。隐藏人格和傻乐兜底都属于作者故意埋的损招，请勿把它当成医学、心理学、相学、命理学或灵异学依据。' : '本测试仅供娱乐，别拿它当跳槽、谈薪、升职或离职的依据。你可以笑，但别太当真。';
+      const posterBox = document.getElementById('posterBox'); const posterImage = document.getElementById('posterImage'); const imageSrc = TYPE_IMAGES[type.code];
+      if (imageSrc) { posterImage.src = imageSrc; posterImage.alt = `${type.code}（${type.cn}）`; posterBox.classList.remove('no-image'); }
+      else { posterImage.removeAttribute('src'); posterImage.alt = ''; posterBox.classList.add('no-image'); }
+      renderDimList(result); showScreen('result');
+    }
+
+    function startTest(preview = false) {
+      app.previewMode = preview; app.answers = {};
+      const shuffledRegular = shuffle(questions); const insertIndex = Math.floor(Math.random() * shuffledRegular.length) + 1;
+      app.shuffledQuestions = [...shuffledRegular.slice(0, insertIndex), specialQuestions[0], ...shuffledRegular.slice(insertIndex)];
+      renderQuestions(); showScreen('test');
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('backIntroBtn').addEventListener('click', () => showScreen('intro'));
+    document.getElementById('submitBtn').addEventListener('click', renderResult);
+    document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
+    document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
+  </script>
+</body>
+</html>
