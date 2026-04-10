@@ -1,6 +1,6 @@
 # NMTI 牛马人格测试
 
-基于 acceptTI 改编的打工人版人格测试，专为职场牛马设计。
+基于 SBTI-test 改编的打工人版人格测试，专为职场牛马设计。
 
 ## 什么是 NMTI
 
@@ -61,7 +61,7 @@ NMTI (Niu Ma Type Indicator) 是一个娱乐性质的职场人格测试：
 
 ## 致谢
 
-本项目基于 [acceptTI](https://github.com/SEUWanglibo/acceptTI) 改编，感谢原作者的创意。
+本项目基于 [SBTI-test](https://github.com/UnluckyNinja/SBTI-test) 改编，感谢原作者 B站@蛆肉儿串儿 的创意。
 
 ## 声明
 
